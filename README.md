@@ -67,3 +67,58 @@ Make sure you have the following installed:
 
 ### Project Structure
 
+```bash
+EcoFile/
+├── backend/
+│ ├── app.py
+│ ├── config.py
+│ ├── init.py
+│ ├── models.py
+│ ├── routes/
+│ │ ├── init.py
+│ │ ├── auth.py
+│ │ ├── ocr.py
+│ ├── static/
+│ │ └── uploads/
+│ └── templates/
+│ └── index.html
+├── frontend/
+│ ├── index.html
+│ ├── app.js
+│ ├── style.css
+├── migrations/
+├── venv/
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+### Usage
+
+1. **Register a New User**:
+    - Open the application in your browser.
+    - Go to the registration form and create a new account.
+
+2. **Login**:
+    - Log in with your registered credentials.
+
+3. **Upload and Convert Documents**:
+    - After logging in, use the upload form to select a scanned document.
+    - Click "Convert to PDF" to start the OCR and conversion process.
+    - Download the generated PDF.
+
+### Contributing
+
+Contributions are welcome! Please fork the repository and create a pull request with your changes.
+
+### License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+### Contact
+
+For any questions or feedback, please reach out at [nategd800@gmail.com].
+
+---
+
+Thank you for using EcoFile!
