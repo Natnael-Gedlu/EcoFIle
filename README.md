@@ -87,9 +87,7 @@ EcoFile/
 │ ├── app.js
 │ ├── style.css
 ├── migrations/
-├── venv/
 ├── requirements.txt
-├── .gitignore
 └── README.md
 ```
 
