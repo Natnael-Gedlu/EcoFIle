@@ -15,6 +15,7 @@ def register():
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
 
+
 @auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
