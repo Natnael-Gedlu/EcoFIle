@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -29,5 +29,13 @@ def create_app():
     @app.route('/')
     def index():
         return app.send_static_file('index.html')
+
+    @app.route('/app.js')
+    def serve_js():
+        return send_from_directory(app.static_folder, 'app.js')
+
+    @app.route('/style.css')
+    def serve_css():
+        return send_from_directory(app.static_folder, 'style.css')
 
     return app
