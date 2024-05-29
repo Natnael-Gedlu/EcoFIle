@@ -1,3 +1,7 @@
+"""
+Initializes the Flask application and its components.
+"""
+
 from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -13,6 +17,12 @@ login_manager.login_view = 'auth.login'
 
 
 def create_app():
+    """
+    Creates and configures the Flask application.
+
+    Returns:
+        Flask app instance.
+    """
     app = Flask(__name__, static_folder='../frontend')
     app.config.from_object(Config)
 
@@ -36,18 +46,40 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
+        """
+        Loads a user by ID.
+        Args:
+            user_id (int): The ID of the user to load.
+        Returns:
+            User: The loaded user object.
+        """
         return User.query.get(int(user_id))
 
     @app.route('/')
     def index():
+        """
+        Serves the index HTML file.
+        Returns:
+            Response: The index HTML file.
+        """
         return app.send_static_file('index.html')
 
     @app.route('/app.js')
     def serve_js():
+        """
+        Serves the app.js file.
+        Returns:
+            Response: The app.js file.
+        """
         return send_from_directory(app.static_folder, 'app.js')
 
     @app.route('/style.css')
     def serve_css():
+        """
+        Serves the style.css file.
+        Returns:
+            Response: The style.css file.
+        """
         return send_from_directory(app.static_folder, 'style.css')
 
     return app
