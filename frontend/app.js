@@ -66,13 +66,10 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
 
     if (response.ok) {
         const blob = await response.blob();
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(blob);
-        img.alt = 'OCR Processed Image';
-
-        const uploadSection = document.getElementById('upload-section');
-        uploadSection.innerHTML = ''; // Clear the section
-        uploadSection.appendChild(img); // Display the image
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'output.png';
+        link.click();
     } else {
         alert('File upload failed');
     }
