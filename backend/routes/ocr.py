@@ -1,35 +1,39 @@
-from flask import Blueprint, request, send_file
+from flask import Blueprint, request, jsonify, send_file
+from backend import db
 from flask_login import login_required
+from PIL import Image, ImageDraw
 import pytesseract
-from PIL import Image
-#from fpdf import FPDF
 import io
 
 ocr = Blueprint('ocr', __name__)
+
 
 @ocr.route('/upload', methods=['POST'])
 @login_required
 def upload_file():
     if 'file' not in request.files:
-        return 'No file part', 400
+        return jsonify({'message': 'No file part'}), 400
+
     file = request.files['file']
+
     if file.filename == '':
-        return 'No selected file', 400
+        return jsonify({'message': 'No selected file'}), 400
 
-    # Perform OCR
-    image = Image.open(file.stream)
-    text = pytesseract.image_to_string(image)
+    if file:
+        # Open the image file
+        image = Image.open(file.stream)
 
-    # Create PDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, text)
+        # Perform OCR on the image
+        ocr_text = pytesseract.image_to_string(image)
 
-    # Save PDF to a bytes buffer
-    pdf_buffer = io.BytesIO()
-    pdf.output(pdf_buffer)
-    pdf_buffer.seek(0)
+        # For demonstration, we will just draw the text back on the image
+        image_editable = ImageDraw.Draw(image)
+        image_editable.text((15, 15), ocr_text, (0, 0, 0))
 
-    return send_file(pdf_buffer, as_attachment=True, download_name='output.pdf')
+        # Save the edited image to a bytes buffer
+        buf = io.BytesIO()
+        image.save(buf, format='PNG')
+        buf.seek(0)
+
+        # Return the edited image
+        return send_file(buf, mimetype='image/png', as_attachment=True, download_name='output.png')
