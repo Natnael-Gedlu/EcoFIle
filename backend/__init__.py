@@ -2,13 +2,14 @@ from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from backend.config import Config
+from backend.models import User
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
-
 
 def create_app():
     app = Flask(__name__, static_folder='../frontend')
@@ -17,6 +18,7 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    migrate = Migrate(app, db)
 
     from backend.routes.auth import auth
     from backend.routes.ocr import ocr
@@ -25,6 +27,10 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     @app.route('/')
     def index():
