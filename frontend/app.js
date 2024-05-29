@@ -68,7 +68,7 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
         const blob = await response.blob();
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'output.png';
+        link.download = 'output.pdf';
         link.click();
     } else {
         alert('File upload failed');
