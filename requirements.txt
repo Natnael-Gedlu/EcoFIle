@@ -1,7 +1,9 @@
-Flask
+Flask~=2.3.3
 Flask-Bcrypt
 Flask-Login
 Flask-SQLAlchemy
-FPDF
-pytesseract
-Pillow
+pytesseract~=0.3.10
+Pillow~=9.5.0
+
+opencv-python~=4.9.0.80
+numpy~=1.26.0
