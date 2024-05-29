@@ -1,21 +1,28 @@
+#!/usr/bin/python3
+"""
+Defines routes for Optical Character Recognition (OCR) processing.
+"""
 from flask import Blueprint, request, jsonify, send_file, current_app
+from backend import db
 from flask_login import login_required
 from PIL import Image, ImageDraw
 import pytesseract
 import io
 import os
-from werkzeug.utils import secure_filename
 
 ocr = Blueprint('ocr', __name__)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @ocr.route('/upload', methods=['POST'])
 @login_required
 def upload_file():
+    """
+    Handles file upload for OCR processing.
+
+    Returns:
+        JSON response with a message and status code, or
+        the processed image file with OCR text.
+    """
     if 'file' not in request.files:
         return jsonify({'message': 'No file part'}), 400
 
@@ -24,8 +31,9 @@ def upload_file():
     if file.filename == '':
         return jsonify({'message': 'No selected file'}), 400
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+    if file:
+        # Save the uploaded file to the upload folder
+        filename = file.filename
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
@@ -46,5 +54,3 @@ def upload_file():
 
         # Return the edited image
         return send_file(buf, mimetype='image/png', as_attachment=True, download_name='output.png')
-
-    return jsonify({'message': 'File not allowed'}), 400
