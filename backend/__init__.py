@@ -4,16 +4,21 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from backend.config import Config
-from backend.models import User
+import os
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
+
 def create_app():
     app = Flask(__name__, static_folder='../frontend')
     app.config.from_object(Config)
+
+    # Set the upload folder configuration
+    app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     db.init_app(app)
     bcrypt.init_app(app)
@@ -26,6 +31,7 @@ def create_app():
     app.register_blueprint(ocr)
 
     with app.app_context():
+        from backend.models import User
         db.create_all()
 
     @login_manager.user_loader
