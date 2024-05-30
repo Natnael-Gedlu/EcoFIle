@@ -2,13 +2,13 @@
 """
 Defines routes for Optical Character Recognition (OCR) processing.
 """
-from flask import Blueprint, request, jsonify, send_file, current_app
-from backend import db
+from flask import Blueprint, request, jsonify, send_file
 from flask_login import login_required
-from PIL import Image, ImageDraw
+from PIL import Image
 import pytesseract
 import io
-import os
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 ocr = Blueprint('ocr', __name__)
 
@@ -17,12 +17,12 @@ ocr = Blueprint('ocr', __name__)
 @login_required
 def upload_file():
     """
-    Handles file upload for OCR processing.
+        Handles file upload for OCR processing.
 
-    Returns:
-        JSON response with a message and status code, or
-        the processed image file with OCR text.
-    """
+        Returns:
+            JSON response with a message and status code, or
+            the processed image file with OCR text.
+        """
     if 'file' not in request.files:
         return jsonify({'message': 'No file part'}), 400
 
@@ -32,25 +32,35 @@ def upload_file():
         return jsonify({'message': 'No selected file'}), 400
 
     if file:
-        # Save the uploaded file to the upload folder
-        filename = file.filename
-        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-
         # Open the image file
-        image = Image.open(file_path)
+        image = Image.open(file.stream)
 
         # Perform OCR on the image
         ocr_text = pytesseract.image_to_string(image)
 
-        # For demonstration, we will just draw the text back on the image
-        image_editable = ImageDraw.Draw(image)
-        image_editable.text((15, 15), ocr_text, (0, 0, 0))
+        # Create a PDF with the extracted text
+        pdf_buffer = io.BytesIO()
+        c = canvas.Canvas(pdf_buffer, pagesize=letter)
+        width, height = letter
 
-        # Save the edited image to a bytes buffer
-        buf = io.BytesIO()
-        image.save(buf, format='PNG')
-        buf.seek(0)
+        # Set up the canvas for writing text
+        c.setFont("Helvetica", 10)
 
-        # Return the edited image
-        return send_file(buf, mimetype='image/png', as_attachment=True, download_name='output.png')
+        # Split the OCR text into lines and write them to the PDF
+        y = height - 40  # Start a bit lower than the top edge
+        for line in ocr_text.split('\n'):
+            c.drawString(40, y, line)
+            y -= 15  # Move down for the next line
+
+            if y < 40:  # Check if we need a new page
+                c.showPage()
+                c.setFont("Helvetica", 10)
+                y = height - 40
+
+        c.save()
+        pdf_buffer.seek(0)
+
+        # Return the PDF file
+        return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name='output.pdf')
+
+    return jsonify({'message': 'No valid file found'}), 400
